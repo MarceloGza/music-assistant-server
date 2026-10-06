@@ -172,6 +172,16 @@ class LibrespotBackend(SpotifyPlaybackBackend):
             async for chunk in librespot_proc.iter_chunked():
                 yield chunk
 
+            # Pipe EOF can precede process exit; a pending status is not a playback failure.
+            if librespot_proc.returncode is None:
+                assert librespot_proc.proc is not None
+                try:
+                    await asyncio.wait_for(librespot_proc.proc.wait(), timeout=5)
+                except TimeoutError as err:
+                    raise AudioError(
+                        "Spotify playback process did not exit after audio ended"
+                    ) from err
+
             if librespot_proc.returncode != 0:
                 raise AudioError(
                     f"Spotify stopped playing this track unexpectedly "
