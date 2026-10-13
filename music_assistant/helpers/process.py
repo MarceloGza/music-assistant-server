@@ -269,8 +269,8 @@ class AsyncProcess:
                 pass
 
     async def read_stderr(self) -> bytes:
-        """Read line from stderr."""
-        if self.returncode is not None:
+        """Read line from stderr, including buffered diagnostics after process exit."""
+        if self._close_called:
             return b""
         assert self.proc is not None  # for type checking
         assert self.proc.stderr is not None  # for type checking
