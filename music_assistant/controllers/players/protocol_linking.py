@@ -2201,7 +2201,8 @@ class ProtocolLinkingMixin:
             # Check if this member is in the parent's group via protocol
             if parent_protocol_domain and parent_protocol_player:
                 child_protocol = child_player.get_output_protocol_by_domain(parent_protocol_domain)
-                if child_protocol and child_protocol.available:
+                # Removing an existing member must also work during a transport outage.
+                if child_protocol:
                     # For native protocol players, use the child's player_id directly
                     child_protocol_id = (
                         child_player.player_id
