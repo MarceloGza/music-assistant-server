@@ -743,9 +743,13 @@ async def cleanup_thumb_cache(cache_path: str, max_size_bytes: int) -> int:
             return 0
         entries = []
         for entry in os.scandir(thumb_dir):
-            if entry.is_file():
+            try:
+                if not entry.is_file():
+                    continue
                 stat = entry.stat()
-                entries.append((entry.path, stat.st_size, stat.st_mtime))
+            except FileNotFoundError:
+                continue
+            entries.append((entry.path, stat.st_size, stat.st_mtime))
         entries.sort(key=lambda e: e[2])
         total_size = sum(e[1] for e in entries)
         removed = 0
